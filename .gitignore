@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+.pnp
+.pnp.js
+
+# Production build
+dist/
+frontend/dist/
+build/
+
+# Python
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local SQLite databases & logs
+*.db
+backend/*.db
+backend/niat_copilot.db
+*.log
+
+# Environment variables (keep .env.example)
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
