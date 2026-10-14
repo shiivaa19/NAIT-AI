@@ -12,7 +12,8 @@ import {
   AuthResponse
 } from './types';
 
-const API_BASE = '/api';
+const envBase = typeof import.meta !== 'undefined' && (import.meta as any).env ? (import.meta as any).env.VITE_API_BASE_URL : '';
+const API_BASE = (envBase ? String(envBase).replace(/\/$/, '') : '') + '/api';
 const TOKEN_KEY = 'niat_auth_token';
 
 export function getAuthToken(): string | null {
