@@ -99,6 +99,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return {
+        "status": "online",
+        "service": settings.APP_NAME,
+        "version": settings.APP_VERSION,
+        "health": "/api/health",
+        "docs": "/docs"
+    }
+
 @app.get("/api/health")
 async def health_check():
     from backend.scheduler import scheduler
