@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, LogOut } from 'lucide-react';
 import { UserMode, LanguageCode, ThemeMode, Citation, User } from './types';
 import { fetchCurrentUser, removeAuthToken } from './api';
 import { Navbar } from './components/Navbar';
@@ -110,36 +109,7 @@ export const App: React.FC = () => {
         />
       </main>
 
-      {/* Bottom-Left Fixed Sign In / Account Box (Desktop only to prevent mobile chatbox overlap) */}
-      <div className="fixed bottom-4 left-4 z-30 hidden sm:block">
-        {user ? (
-          <div className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-[#111620]/95 border border-slate-200 dark:border-zinc-800 shadow-[0_4px_20px_rgba(0,0,0,0.15)] text-xs backdrop-blur-md">
-            <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[10px] shadow-sm">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
-            <span className="text-slate-800 dark:text-white font-medium max-w-[100px] sm:max-w-[130px] truncate">{user.name}</span>
-            <button
-              onClick={() => {
-                removeAuthToken();
-                setUser(null);
-              }}
-              title="Sign Out"
-              className="text-slate-400 hover:text-rose-500 p-0.5 rounded transition-colors ml-1"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setIsAuthModalOpen(true)}
-            className="flex items-center space-x-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white/95 dark:bg-[#111620]/95 hover:bg-slate-50 dark:hover:bg-[#1a202c] border border-slate-200 dark:border-zinc-800 shadow-[0_4px_20px_rgba(0,0,0,0.15)] hover:shadow-xl text-xs font-semibold text-slate-800 dark:text-white transition-all group backdrop-blur-md active:scale-95"
-            title="Sign In / Create Account"
-          >
-            <LogIn className="w-3.5 h-3.5 text-blue-500 group-hover:scale-110 transition-transform" />
-            <span>Sign In</span>
-          </button>
-        )}
-      </div>
+
 
       {/* Modals & Drawers */}
       <CitationsDrawer
