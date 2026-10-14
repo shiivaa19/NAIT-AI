@@ -227,6 +227,26 @@ async def clear_session_messages(session_id: str):
         await conn.execute("DELETE FROM messages WHERE session_id = ?", (session_id,))
         await conn.commit()
 
+async def get_all_sessions(limit: int = 30) -> List[Dict[str, Any]]:
+    async with get_db_connection() as conn:
+        cursor = await conn.execute("""
+        SELECT s.session_id, s.mode, s.language, s.created_at, s.updated_at,
+               (SELECT content FROM messages WHERE session_id = s.session_id AND role = 'user' ORDER BY id ASC LIMIT 1) as first_query,
+               (SELECT COUNT(*) FROM messages WHERE session_id = s.session_id) as message_count
+        FROM sessions s
+        WHERE (SELECT COUNT(*) FROM messages WHERE session_id = s.session_id) > 0
+        ORDER BY s.updated_at DESC
+        LIMIT ?
+        """, (limit,))
+        rows = await cursor.fetchall()
+        return [dict(r) for r in rows]
+
+async def delete_session(session_id: str):
+    async with get_db_connection() as conn:
+        await conn.execute("DELETE FROM messages WHERE session_id = ?", (session_id,))
+        await conn.execute("DELETE FROM sessions WHERE session_id = ?", (session_id,))
+        await conn.commit()
+
 async def save_lead(lead_data: Dict[str, Any]) -> int:
     session_id = lead_data.get("session_id")
     session_messages = []

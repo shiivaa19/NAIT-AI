@@ -272,6 +272,22 @@ Output ONLY the message body, without preamble.
                 f"How would you rate your session on a scale of *1 to 5* (where 5 is Excellent)?\n"
                 f"Reply with a number (1-5) and tell us: Did this call resolve your key concerns?"
             )
+        elif step == "exam_day_notice":
+            return (
+                f"🚨 *IMPORTANT EXAM NOTICE FOR {name.upper()}* 🚨\n\n"
+                f"Your National Aptitude Test (NAT) is *TODAY*! 📝\n"
+                f"• Exam Window: 10:00 AM – 6:00 PM IST\n"
+                f"• Format: 60 Mins online test (Logical Reasoning & Math basics)\n"
+                f"• Admit Card & Link: https://niatindia.com/nat-exam?ref={lead.get('id')}\n\n"
+                f"Good luck! Reply HELP if you have any questions."
+            )
+        elif step == "periodic_cadence_5h":
+            return (
+                f"⚡ *NIAT Admissions Update for {name}*:\n\n"
+                f"Cohort 2026 early-scholarship verification for *{campus}* is active. "
+                f"Have you submitted your PCM eligibility details?\n\n"
+                f"Review status: https://niatindia.com/portal?ref={lead.get('id')}"
+            )
         return f"Hello {name}, thank you for connecting with NIAT Admissions."
 
     async def send_sequence_message(self, lead: Dict[str, Any], step: str) -> Dict[str, Any]:

@@ -291,3 +291,9 @@ export async function recordAttendance(leadId: number, attended: boolean): Promi
   return res.json();
 }
 
+export async function fetchNotifications(): Promise<any> {
+  const res = await fetch(`${API_BASE}/notifications`);
+  if (!res.ok) return { notifications: [], count: 0, unread_count: 0, urgent_banner: null };
+  return res.json();
+}
+

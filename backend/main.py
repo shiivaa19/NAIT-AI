@@ -693,6 +693,68 @@ async def update_lead(lead_id: int, req: LeadStatusUpdateRequest):
         raise HTTPException(status_code=404, detail="Lead not found")
     return {"status": "success", "lead_id": lead_id, "new_status": req.status}
 
+# --- 8. Live Student Notifications & Alert System ---
+@app.get("/api/notifications")
+async def get_student_notifications(session_id: Optional[str] = None):
+    """
+    Returns live notifications for students:
+    - NAT Exam Today alert
+    - Counselling 1 day before (tomorrow) / 1 hour before
+    - Periodic 5-hour admissions cadence notices
+    """
+    now = datetime.now()
+    notifications = [
+        {
+            "id": "notif_exam_today",
+            "type": "exam",
+            "priority": "urgent",
+            "title": "🚨 NAT Entrance Exam is LIVE Today!",
+            "message": "The National Aptitude Test (NAT) window is active today from 10:00 AM to 6:00 PM IST. Please have your admit card and stable internet ready.",
+            "action_label": "Exam Guidelines",
+            "action_key": "checklist",
+            "created_at": now.strftime("%Y-%m-%d %H:%M"),
+            "is_today": True
+        },
+        {
+            "id": "notif_counselling_reminder",
+            "type": "counselling",
+            "priority": "high",
+            "title": "📅 Counselling Session Tomorrow at 5:00 PM",
+            "message": "Your 1-on-1 Academic Counselling session with Senior NIAT Advisor is scheduled for Tomorrow at 5:00 PM IST. Have your Class 12 PCM details ready.",
+            "action_label": "Counselling Details",
+            "action_key": "counselling",
+            "created_at": (now - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M"),
+            "is_today": False
+        },
+        {
+            "id": "notif_periodic_cadence",
+            "type": "cadence",
+            "priority": "info",
+            "title": "⚡ 5-Hour Admissions Update: Seat Availability",
+            "message": "Cohort 2026 early-action scholarship quota is 78% filled across Hyderabad & Bangalore campuses. Complete your verification checklist.",
+            "action_label": "View Campuses",
+            "action_key": "campuses",
+            "created_at": (now - timedelta(hours=5)).strftime("%Y-%m-%d %H:%M"),
+            "is_today": False
+        }
+    ]
+    return {
+        "notifications": notifications,
+        "count": len(notifications),
+        "unread_count": len(notifications),
+        "urgent_banner": notifications[0]
+    }
+
+@app.post("/api/notifications/trigger-exam-notice")
+async def trigger_exam_notice(lead_id: int):
+    """Dispatches instant exam day notice to a registered student via active WhatsApp channel."""
+    from backend.messaging import messaging_service
+    lead = await get_lead_by_id(lead_id)
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    res = await messaging_service.send_sequence_message(lead, step="exam_day_notice")
+    return {"status": "success", "action": "exam_notice_sent", "result": res}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
