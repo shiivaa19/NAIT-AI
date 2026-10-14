@@ -28,6 +28,22 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///niat_copilot.db"
     SUPABASE_URL: str = "https://tdqtkizcllciatcbmgqx.supabase.co"
     SUPABASE_KEY: str = ""
+
+    # Multi-Component Automation Engine Providers
+    MESSAGING_MODE: str = "mock"  # "live" | "mock"
+    WHATSAPP_PROVIDER: str = "meta"  # "meta" | "twilio" | "mock"
+    META_WHATSAPP_TOKEN: str = ""
+    META_PHONE_NUMBER_ID: str = ""
+    META_VERIFY_TOKEN: str = "niat_copilot_webhook_verify_secret_token"
+    TWILIO_ACCOUNT_SID: str = ""
+    TWILIO_AUTH_TOKEN: str = ""
+    TWILIO_WHATSAPP_NUMBER: str = ""
+
+    VOICE_MODE: str = "mock"  # "live" | "mock"
+    VOICE_PROVIDER: str = "vapi"  # "vapi" | "mock"
+    VAPI_API_KEY: str = ""
+    VAPI_PHONE_NUMBER_ID: str = ""
+    VAPI_ASSISTANT_ID: str = ""
     
     # CORS Settings
     CORS_ORIGINS: List[str] = [

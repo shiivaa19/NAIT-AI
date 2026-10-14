@@ -241,3 +241,52 @@ export async function updateLeadStatus(leadId: number, status: string, notes?: s
 export async function clearSessionMessages(sessionId: string): Promise<void> {
   await fetch(`${API_BASE}/session/${sessionId}`, { method: 'DELETE' });
 }
+
+export async function fetchConversionFunnel(): Promise<any> {
+  const res = await fetch(`${API_BASE}/admin/funnel`);
+  if (!res.ok) throw new Error('Failed to fetch conversion funnel');
+  return res.json();
+}
+
+export async function fetchLeadTimeline(leadId: number): Promise<any> {
+  const res = await fetch(`${API_BASE}/engine/lead/${leadId}/timeline`);
+  if (!res.ok) throw new Error('Failed to fetch lead timeline');
+  return res.json();
+}
+
+export async function fetchEngineJobs(leadId?: number): Promise<any[]> {
+  const url = leadId ? `${API_BASE}/engine/jobs?lead_id=${leadId}` : `${API_BASE}/engine/jobs`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch engine jobs');
+  const data = await res.json();
+  return data.jobs || [];
+}
+
+export async function retryEngineJob(jobId: number): Promise<any> {
+  const res = await fetch(`${API_BASE}/engine/jobs/${jobId}/retry`, { method: 'POST' });
+  if (!res.ok) throw new Error('Failed to retry job');
+  return res.json();
+}
+
+export async function runSimulation(leadName?: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/engine/simulate?lead_name=${encodeURIComponent(leadName || 'Aarav Sharma')}`, {
+    method: 'POST'
+  });
+  if (!res.ok) throw new Error('Simulation failed');
+  return res.json();
+}
+
+export async function bookSlot(leadId: number, slotTime?: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/leads/${leadId}/book-slot${slotTime ? `?slot_time=${encodeURIComponent(slotTime)}` : ''}`, {
+    method: 'POST'
+  });
+  return res.json();
+}
+
+export async function recordAttendance(leadId: number, attended: boolean): Promise<any> {
+  const res = await fetch(`${API_BASE}/leads/${leadId}/counselling-attended?attended=${attended}`, {
+    method: 'POST'
+  });
+  return res.json();
+}
+

@@ -122,10 +122,27 @@ class CounsellingLeadRequest(BaseModel):
     consent_given: bool = True
     notes: Optional[str] = None
 
+class ScoreReasonItem(BaseModel):
+    dimension: str
+    points: int
+    max_points: int
+    reason: str
+
+class LeadScoreResponse(BaseModel):
+    lead_id: int
+    score: int
+    tag: str
+    reasons: List[ScoreReasonItem] = []
+    summary: str
+    updated_at: Optional[str] = None
+
 class CounsellingLeadResponse(BaseModel):
     lead_id: int
     status: str
     message: str
+    score: int = 50
+    tag: str = "WARM"
+    score_reasons: List[ScoreReasonItem] = []
     created_at: str
 
 class LeadStatusUpdateRequest(BaseModel):

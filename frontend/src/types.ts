@@ -114,6 +114,13 @@ export interface DecisionReport {
   recommended_next_steps: string[];
 }
 
+export interface ScoreReason {
+  dimension: string;
+  points: number;
+  max_points: number;
+  reason: string;
+}
+
 export interface CounsellingLead {
   id: number;
   session_id?: string;
@@ -129,7 +136,50 @@ export interface CounsellingLead {
   consent_given: boolean;
   status: 'new' | 'contacted' | 'scheduled' | 'enrolled' | 'closed';
   notes?: string;
+  score?: number;
+  tag?: 'HOT' | 'WARM' | 'COLD';
+  score_reasons?: ScoreReason[];
+  opted_out?: boolean;
+  booked_slot_at?: string;
+  counselling_attended?: boolean;
+  enrolled?: boolean;
+  voice_call_attempts?: number;
+  last_interaction_at?: string;
   created_at: string;
+}
+
+export interface FunnelStage {
+  stage: string;
+  count: number;
+  conversion_from_prev: number;
+}
+
+export interface ConversionFunnelResponse {
+  funnel_stages: FunnelStage[];
+  total_conversion_rate: number;
+  lead_to_enrolled_rate: number;
+  updated_at: string;
+}
+
+export interface AutomationJob {
+  id: number;
+  lead_id: number;
+  step: string;
+  run_at: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled' | 'skipped';
+  attempts: number;
+  max_attempts: number;
+  last_error?: string;
+}
+
+export interface LeadTimeline {
+  lead: CounsellingLead;
+  timeline: {
+    jobs: any[];
+    messages: any[];
+    voice_calls: any[];
+    feedback: any[];
+  };
 }
 
 export interface AdminMetrics {
