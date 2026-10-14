@@ -5,15 +5,25 @@ import {
   Bot,
   User,
   ShieldCheck,
+  ExternalLink,
   RotateCcw,
+  BookOpen,
+  HelpCircle,
+  Calculator,
+  Building2,
+  FileText,
+  PhoneCall,
   ChevronRight,
+  Flame,
+  ArrowRight,
   Copy,
   Check,
   Mic,
   MicOff,
   Volume2,
   VolumeX,
-  Square
+  Square,
+  Play
 } from 'lucide-react';
 import { ChatMessage, Citation, UserMode, LanguageCode, ThemeMode } from '../types';
 import { sendChatMessage, clearSessionMessages } from '../api';
@@ -24,33 +34,25 @@ interface ChatInterfaceProps {
   language: LanguageCode;
   sessionId: string;
   theme?: ThemeMode;
-  userName?: string;
-  urgentNotice?: any;
-  onOpenNotifications?: () => void;
   onNewSession: () => void;
   onOpenCitations: (citations: Citation[]) => void;
   onOpenCalculator: () => void;
   onOpenCampusCompare: () => void;
   onOpenReport: () => void;
   onOpenCounselling: () => void;
-  onOpenChecklist: () => void;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   mode,
   language,
   sessionId,
-  theme = 'dark',
-  userName,
-  urgentNotice,
-  onOpenNotifications,
+  theme = 'light',
   onNewSession,
   onOpenCitations,
   onOpenCalculator,
   onOpenCampusCompare,
   onOpenReport,
-  onOpenCounselling,
-  onOpenChecklist
+  onOpenCounselling
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState<string>('');
@@ -100,6 +102,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       return;
     }
 
+    // Clean text of markdown, flowcharts, and special characters for natural voice
     const cleanSpeech = text
       .replace(/```[\s\S]*?```/g, 'Flowchart diagram displayed.')
       .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -117,7 +120,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     utterance.onend = () => {
       setSpeakingMsgId(null);
     };
-
     utterance.onerror = () => {
       setSpeakingMsgId(null);
     };
@@ -127,19 +129,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   const toggleVoiceInput = () => {
-    if (isListening) {
-      if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch (e) {}
-      }
-      setIsListening(false);
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Speech recognition is not supported in this browser. Please try Google Chrome or Microsoft Edge.');
       return;
     }
 
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      alert('Speech Recognition is not supported by your browser. Please use Chrome, Edge, or Safari.');
+    if (isListening) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {}
+      }
+      setIsListening(false);
       return;
     }
 
@@ -298,16 +300,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
+  const isDark = theme === 'dark';
+
   return (
-    <div className="flex-1 flex flex-col h-full max-w-5xl w-full mx-auto px-3 sm:px-6 overflow-hidden">
+    <div className="flex-1 flex flex-col h-full min-h-0 max-w-5xl w-full mx-auto px-3 sm:px-6 overflow-hidden">
       {/* Messages List Area - Only this scrolls */}
-      <div className="flex-1 overflow-y-auto min-h-0 pr-1 space-y-5 pt-2 pb-2">
+      <div className="flex-1 overflow-y-auto min-h-0 pr-1 space-y-6 pt-2 pb-2">
         {messages.length === 0 ? (
-          <div className="py-4 sm:py-8 space-y-6 sm:space-y-8 animate-fade-in">
+          <div className="py-6 sm:py-10 space-y-8 animate-fade-in">
             {/* NIAT Official Crest Medallion Presentation */}
             <div className="flex flex-col items-center justify-center space-y-3">
               <div
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 shadow-xl shadow-amber-500/25 p-1 shrink-0 flex items-center justify-center ring-4 ring-amber-300/40"
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 shadow-xl shadow-amber-500/25 p-1 shrink-0 flex items-center justify-center ring-4 ring-amber-300/40"
                 title="NIAT Official Crest"
               >
                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-sm" fill="none">
@@ -352,7 +356,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </div>
 
             {/* Hero Welcome Text */}
-            <div className="text-center max-w-2xl mx-auto space-y-2 px-2">
+            <div className="text-center max-w-2xl mx-auto space-y-2">
               <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 {language === 'te'
                   ? 'NIAT AI అడ్మిషన్ కోపైలట్'
@@ -361,7 +365,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     : 'Clear, Honest Answers for Parents')}
               </h1>
 
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
+              <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
                 {language === 'te'
                   ? 'UGC గుర్తింపు పొందిన 35+ విశ్వవిద్యాలయాలు, ఫీజుల వివరాలు, హాస్టల్ మరియు ప్లేస్‌మెంట్స్‌పై సరళమైన, నిఖార్సైన సమాధానాలు.'
                   : (mode === 'student'
@@ -370,14 +374,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               </p>
             </div>
 
-            {/* Suggested Question Chips (Without the FAQ Headline) */}
-            <div className="max-w-3xl mx-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+            {/* Suggested Question Chips */}
+            <div className="max-w-3xl mx-auto space-y-3">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-slate-600 dark:text-slate-400 px-1">
+                <Flame className="w-3.5 h-3.5 text-amber-500" />
+                <span>Frequently Asked Questions & Quick Prompts:</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {activePrompts.map((promptText, i) => (
                   <button
                     key={i}
                     onClick={() => handleSendMessage(promptText)}
-                    className="flex items-start justify-between p-3 sm:p-3.5 rounded-xl bg-white dark:bg-[#0D1117] hover:bg-slate-50 dark:hover:bg-[#151B22] border border-slate-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-zinc-700 text-left transition-all shadow-[0_4px_16px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_16px_rgba(255,255,255,0.02)] group active:scale-98"
+                    className="flex items-start justify-between p-3.5 rounded-xl bg-white dark:bg-[#0D1117] hover:bg-slate-50 dark:hover:bg-[#151B22] border border-slate-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-zinc-700 text-left transition-all shadow-[0_4px_16px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_16px_rgba(255,255,255,0.02)] group"
                   >
                     <span className="text-xs text-slate-700 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-white font-medium pr-2 leading-relaxed">
                       {promptText}
@@ -389,7 +398,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-5 pb-4">
+          <div className="space-y-6 pb-4">
+            {/* Centered Session Timestamp as seen in screenshot */}
             <div className="flex justify-center pt-2 pb-1">
               <span className="text-[11px] font-medium text-slate-400 dark:text-zinc-500">
                 Today {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -403,13 +413,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   msg.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
+                {/* Message Bubble Container: #223D72 for user, transparent black for assistant */}
                 <div
                   className={`${
                     msg.role === 'user'
                       ? 'max-w-[85%] sm:max-w-[75%] bg-[#223D72] text-white rounded-2xl sm:rounded-3xl px-4 sm:px-5 py-2.5 sm:py-3 shadow-[0_4px_16px_rgba(0,0,0,0.3)] space-y-1'
-                      : 'w-full max-w-full bg-transparent text-slate-900 dark:text-white p-1 sm:p-2 space-y-3'
+                      : 'w-full max-w-full bg-transparent dark:bg-transparent text-slate-900 dark:text-white p-1 sm:p-2 space-y-3'
                   }`}
                 >
+                  {/* Message Content */}
                   <div className="text-sm leading-relaxed text-slate-900 dark:text-white">
                     {msg.role === 'assistant' ? (
                       <MarkdownRenderer content={msg.content} theme={theme} />
@@ -418,6 +430,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     )}
                   </div>
 
+                  {/* Assistant Footer */}
                   {msg.role === 'assistant' && (
                     <div className="pt-2 border-t border-slate-100 dark:border-zinc-900 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-zinc-400">
                       <div>
@@ -433,23 +446,32 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       </div>
 
                       <div className="flex items-center space-x-1.5 ml-auto">
+                        {/* Voice Listen Button */}
                         <button
-                          type="button"
                           onClick={() => speakMessage(msg.content, msg.id)}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            speakingMsgId === msg.id ? 'text-cyan-500 bg-cyan-500/10' : 'text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200'
+                          className={`p-1 rounded-md transition-colors ${
+                            speakingMsgId === msg.id
+                              ? 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60 animate-pulse'
+                              : 'text-slate-400 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800'
                           }`}
-                          title={speakingMsgId === msg.id ? "Stop voice" : "Listen in voice"}
+                          title={speakingMsgId === msg.id ? "Stop Voice" : "Listen in Voice"}
                         >
-                          <Volume2 className="w-3.5 h-3.5" />
+                          {speakingMsgId === msg.id ? (
+                            <Square className="w-3.5 h-3.5 fill-current" />
+                          ) : (
+                            <Volume2 className="w-3.5 h-3.5" />
+                          )}
                         </button>
                         <button
-                          type="button"
                           onClick={() => copyToClipboard(msg.content, idx)}
-                          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors"
+                          className="p-1 hover:text-slate-900 dark:hover:text-white rounded hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-400 dark:text-zinc-400"
                           title="Copy text"
                         >
-                          {copiedIndex === idx ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copiedIndex === idx ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
                         </button>
                         <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono">
                           {msg.created_at}
@@ -461,9 +483,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               </div>
             ))}
 
+            {/* Typing Indicator */}
             {loading && (
               <div className="flex items-start justify-start">
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-transparent border border-slate-200 dark:border-transparent text-slate-700 dark:text-white flex items-center space-x-2">
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-transparent border border-slate-200 dark:border-transparent text-slate-700 dark:text-white flex items-center space-x-2">
                   <div className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0ms' }} />
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '150ms' }} />
                   <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -473,6 +496,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </div>
               </div>
             )}
+
             <div ref={messagesEndRef} />
           </div>
         )}
@@ -480,7 +504,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Suggested Follow-up Actions */}
       {suggestedActions.length > 0 && !loading && (
-        <div className="flex flex-wrap items-center gap-1.5 py-1.5 overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-1.5 py-2 overflow-x-auto">
           <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">Suggested:</span>
           {suggestedActions.map((action, i) => (
             <button
@@ -494,28 +518,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
       )}
 
-      {/* Chat Box Input Area - Fixed at bottom without + button */}
-      <div className="shrink-0 pt-1 pb-3 sm:pb-4 z-20 bg-transparent transition-colors border-t border-slate-200/50 dark:border-zinc-900/60 w-full">
-        {/* Urgent Live Notification Banner (If exam or counselling is today) */}
-        {urgentNotice && (
-          <div className="mb-2 px-3 py-2 rounded-xl bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-rose-500/10 border border-rose-500/30 flex items-center justify-between text-xs animate-fade-in shadow-xs">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0 animate-ping" />
-              <span className="font-bold text-rose-500 dark:text-rose-400 shrink-0">{urgentNotice.title}:</span>
-              <span className="text-slate-700 dark:text-zinc-300 truncate text-[11px]">{urgentNotice.message}</span>
-            </div>
-            {onOpenNotifications && (
-              <button
-                onClick={onOpenNotifications}
-                className="text-[11px] text-blue-500 hover:underline font-bold shrink-0 ml-2"
-              >
-                View
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Clean Original Chatbox Card (NO + button) */}
+      {/* Input Box Area - Permanently Fixed at Bottom (Never moves on scroll) */}
+      <div
+        style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}
+        className="shrink-0 pt-2 px-1 sm:px-0 z-20 bg-slate-50 dark:bg-[#000000] transition-colors border-t border-slate-200 dark:border-zinc-900"
+      >
         <div className="relative rounded-2xl bg-white dark:bg-[#0E1217] border border-slate-200 dark:border-zinc-800 focus-within:border-blue-500 dark:focus-within:border-blue-500/80 focus-within:ring-2 focus-within:ring-blue-500/20 shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_24px_rgba(255,255,255,0.05)] transition-all">
           <textarea
             ref={textareaRef}
@@ -536,47 +543,46 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     ? "Ask any question about NIAT, B.Tech degrees, NAT exam, projects, or campuses..."
                     : "Ask about degree validation, total 4-year costs, hostel security, or request Telugu explanation..."))
             }
-            className="w-full bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 px-4 py-3.5 pr-36 focus:outline-none resize-none max-h-32 min-h-[44px]"
+            className="w-full bg-transparent text-base sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 pl-3.5 sm:pl-4 py-2.5 sm:py-3.5 pr-28 sm:pr-36 focus:outline-none resize-none max-h-32"
           />
 
-          {/* Right Side Action Buttons */}
-          <div className="absolute right-2.5 bottom-2 flex items-center space-x-1.5">
+          <div className="absolute right-2 bottom-1.5 sm:right-2.5 sm:bottom-2 flex items-center space-x-1 sm:space-x-1.5">
             {/* Voice Response Auto-Speak Toggle */}
             <button
               type="button"
               onClick={toggleVoiceResponse}
-              className={`p-2 rounded-xl transition-all ${
+              className={`p-1.5 sm:p-2 rounded-xl transition-all ${
                 isVoiceResponseEnabled
                   ? 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200 dark:border-cyan-800/60 shadow-[0_2px_8px_rgba(0,0,0,0.05)]'
                   : 'text-slate-400 hover:text-slate-600 dark:text-zinc-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800'
               }`}
               title={isVoiceResponseEnabled ? "Voice Responses are ON (Click to Mute)" : "Voice Responses are OFF (Click to Enable Voice)"}
             >
-              {isVoiceResponseEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              {isVoiceResponseEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
             </button>
 
             {/* Voice Microphone Input Button */}
             <button
               type="button"
               onClick={toggleVoiceInput}
-              className={`p-2 rounded-xl transition-all ${
+              className={`p-1.5 sm:p-2 rounded-xl transition-all ${
                 isListening
                   ? 'bg-rose-500 text-white animate-pulse shadow-md shadow-rose-500/30'
                   : 'text-slate-500 hover:text-blue-600 dark:text-zinc-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800'
               }`}
               title={isListening ? "Listening... Click to Stop" : "Speak to Ask (Voice Input)"}
             >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              {isListening ? <MicOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
             </button>
 
             {messages.length > 0 && (
               <button
                 type="button"
                 onClick={handleClearChat}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:text-zinc-400 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all"
+                className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-600 dark:text-zinc-400 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all"
                 title="Clear conversation"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
 
@@ -584,18 +590,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               type="button"
               onClick={() => handleSendMessage()}
               disabled={!input.trim() || loading}
-              className="p-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-40 disabled:pointer-events-none transition-all shadow-[0_4px_12px_rgba(0,0,0,0.05)] active:scale-95"
+              className="p-1.5 sm:p-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-40 disabled:pointer-events-none transition-all shadow-[0_4px_12px_rgba(0,0,0,0.05)] active:scale-95"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
 
         <div className="flex items-center justify-between px-2 pt-1.5 text-[10px] text-slate-500 dark:text-zinc-500">
-          <span className="flex items-center space-x-1.5">
+          <span className="flex items-center space-x-1.5 truncate max-w-[260px] sm:max-w-none">
             <span>NIAT AI Copilot • Voice & Text Enabled</span>
             {isVoiceResponseEnabled && (
-              <span className="inline-flex items-center px-1.5 py-0.2 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[9px] font-semibold border border-cyan-500/20">
+              <span className="inline-flex items-center px-1.5 py-0.2 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[9px] font-semibold border border-cyan-500/20 shrink-0">
                 Voice Output ON
               </span>
             )}
